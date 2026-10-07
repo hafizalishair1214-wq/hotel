@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #08090b;
+    color: #f7f4ee;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-royal {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  .font-serif-royal {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Custom Luxury Gradients & Shimmer */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #F9E79F 0%, #D4AF37 50%, #AA771C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-gradient-border {
+  border-image: linear-gradient(135deg, #D4AF37, #F9E79F, #AA771C) 1;
+}
+
+.gold-card-bg {
+  background: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.12) 0%, rgba(18, 20, 24, 0.98) 90%);
+}
+
+.royal-glow {
+  box-shadow: 0 0 35px -5px rgba(212, 175, 55, 0.25);
+}
+
+.shimmer-badge {
+  background: linear-gradient(90deg, rgba(212,175,55,0.15) 0%, rgba(249,231,159,0.3) 50%, rgba(212,175,55,0.15) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Subtle Royal Sparkle Animation */
+@keyframes sparkle-pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+  }
+  35% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 16px rgba(249, 231, 159, 0.95)) drop-shadow(0 0 30px rgba(212, 175, 55, 0.6));
+  }
+  70% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0) rotate(0deg);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(var(--tx, 0px), var(--ty, -15px)) scale(1.2) rotate(45deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--tx, 0px) * 1.5), calc(var(--ty, -15px) * 1.5)) scale(0.2) rotate(90deg);
+  }
+}
+
+@keyframes delta-float {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
+  75% {
+    opacity: 0.9;
+    transform: translateY(-16px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.9);
+  }
+}
+
+.animate-sparkle-active {
+  animation: sparkle-pulse 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-sparkle-star {
+  animation: sparkle-twinkle 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-delta-pill {
+  animation: delta-float 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

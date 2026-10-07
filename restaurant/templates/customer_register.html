@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Join Shahi Club & Earn Points | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+
+<div class="container section" style="max-width: 520px; min-height: 70vh; display: flex; align-items: center; justify-content: center;">
+  
+  <div style="width: 100%; background: var(--bg-card); border: 1px solid var(--gold-border); border-radius: var(--radius-md); padding: 3rem 2.25rem; box-shadow: var(--shadow-card); text-align: center;">
+    
+    <div style="font-size: 2.4rem; margin-bottom: 0.5rem;">✨</div>
+    <span class="section-tag">Complimentary Membership</span>
+    <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem; color: var(--gold-light);">Join the Royal Club</h1>
+    
+    <!-- Welcome Perk Banner -->
+    <div style="background: rgba(212, 175, 55, 0.12); border: 1px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.75rem; font-size: 0.88rem; color: var(--gold-light); display: flex; align-items: center; justify-content: center; gap: 8px;">
+      <span>🎁</span>
+      <span><strong>Instant Gift:</strong> +100 Royal Points credited upon registration!</span>
+    </div>
+
+    <form action="{{ url_for('customer_register') }}{% if request.args.get('next') %}?next={{ request.args.get('next')|urlencode }}{% endif %}" method="POST" style="text-align: left;">
+      
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name *</label>
+        <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Tariq Mehmood" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address *</label>
+        <input type="email" id="email" name="email" class="form-input" placeholder="e.g. tariq@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone / WhatsApp Number *</label>
+        <input type="tel" id="phone" name="phone" class="form-input" placeholder="e.g. 0300-1234567" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password (Minimum 6 characters) *</label>
+        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" minlength="6" required>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 0.95rem; letter-spacing: 0.05em;">
+          Claim +100 Points & Create Account →
+        </button>
+      </div>
+
+    </form>
+
+    <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle); font-size: 0.88rem;">
+      <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Already a registered noble patron?</p>
+      <a href="{{ url_for('customer_login') }}{% if request.args.get('next') %}?next={{ request.args.get('next')|urlencode }}{% endif %}" style="color: var(--gold-primary); font-weight: 700;">
+        Sign In to Your Account →
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Orders & Delivery Dispatch | Royal Admin — Zaiqa Royale{% endblock %}
+
+{% block content %}
+
+<div class="admin-layout">
+  
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem;">
+      <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-primary);">Logged in as</span>
+      <h3 style="font-size: 1.1rem; color: var(--text-cream); margin-top: 2px;">{{ current_user.name }}</h3>
+      <span style="font-size: 0.75rem; color: var(--text-dim);">Role: {{ current_user.role|capitalize }}</span>
+    </div>
+
+    <ul class="admin-nav-list">
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-link">
+          <span>📊</span> <span>Dashboard Overview</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_products') }}" class="admin-nav-link">
+          <span>🥘</span> <span>Manage Products</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_orders') }}" class="admin-nav-link active">
+          <span>🛍️</span> <span>Orders & Dispatch</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_reservations') }}" class="admin-nav-link">
+          <span>📅</span> <span>Table Bookings</span>
+        </a>
+      </li>
+      <li class="admin-nav-item" style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <a href="{{ url_for('index') }}" class="admin-nav-link" target="_blank">
+          <span>↗️</span> <span>View Public Site</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_logout') }}" class="admin-nav-link" style="color: #f87171;">
+          <span>🚪</span> <span>Log Out</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Admin Main Content -->
+  <div class="admin-content">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="section-tag">Kitchen & Delivery Logistics</span>
+        <h1 style="font-size: 1.85rem; color: var(--gold-light);">Customer Order Queue</h1>
+      </div>
+      <div>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+          Total in system: <strong>{{ orders|length }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Status Filter Bar -->
+    <div class="filter-bar" style="justify-content: flex-start; margin-bottom: 2rem;">
+      {% for st in statuses %}
+        <a href="{{ url_for('admin_orders', status=st) }}" 
+           class="filter-btn {% if active_status == st %}active{% endif %}" style="font-size: 0.78rem; padding: 0.4rem 0.95rem;">
+          {{ st }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Orders Table -->
+    {% if orders %}
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Delivery Address</th>
+              <th>Dishes Breakdown</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Update Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td><strong>#{{ order.id }}</strong></td>
+                <td>
+                  <strong style="color: var(--text-cream); display: block;">{{ order.customer_name }}</strong>
+                  <small style="color: var(--text-dim);">{{ order.email }}</small>
+                </td>
+                <td>
+                  <a href="tel:{{ order.phone }}" style="color: var(--gold-light);">{{ order.phone }}</a>
+                </td>
+                <td>
+                  <div style="max-width: 220px; font-size: 0.82rem; line-height: 1.4;">
+                    {{ order.address }}, <strong>{{ order.city }}</strong>
+                    {% if order.order_notes %}
+                      <div style="color: var(--gold-muted); font-style: italic; margin-top: 2px;">
+                        Note: {{ order.order_notes }}
+                      </div>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div style="max-width: 220px; font-size: 0.82rem;">
+                    {% for it in order.items %}
+                      <div>• {{ it.quantity }}x {{ it.product.name if it.product else 'Dish' }}</div>
+                    {% endfor %}
+                  </div>
+                </td>
+                <td style="font-weight: 700; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+                  {{ currency }} {{ order.total|int }}
+                </td>
+                <td>
+                  <span style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                    {{ order.payment_method }}
+                  </span>
+                </td>
+                <td>
+                  <small style="color: var(--text-dim); white-space: nowrap;">{{ order.formatted_date() }}</small>
+                </td>
+                <td>
+                  {% if order.status == 'New' %}
+                    <span class="status-badge status-new">New</span>
+                  {% elif order.status == 'Confirmed' %}
+                    <span class="status-badge status-confirmed">Confirmed</span>
+                  {% elif order.status == 'Preparing' %}
+                    <span class="status-badge status-preparing">Preparing</span>
+                  {% elif order.status == 'Ready' %}
+                    <span class="status-badge status-ready">Ready</span>
+                  {% elif order.status == 'Out for Delivery' %}
+                    <span class="status-badge status-ready">Out for Delivery</span>
+                  {% elif order.status == 'Delivered' %}
+                    <span class="status-badge status-delivered">Delivered</span>
+                  {% else %}
+                    <span class="status-badge status-cancelled">{{ order.status }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <form action="{{ url_for('admin_order_status', order_id=order.id) }}" method="POST">
+                    <select name="status" class="form-select" style="padding: 0.3rem 0.5rem; font-size: 0.78rem; height: 32px;" onchange="this.form.submit()">
+                      <option value="New" {% if order.status == 'New' %}selected{% endif %}>New</option>
+                      <option value="Confirmed" {% if order.status == 'Confirmed' %}selected{% endif %}>Confirmed</option>
+                      <option value="Preparing" {% if order.status == 'Preparing' %}selected{% endif %}>Preparing</option>
+                      <option value="Ready" {% if order.status == 'Ready' %}selected{% endif %}>Ready</option>
+                      <option value="Out for Delivery" {% if order.status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+                      <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                      <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="background: var(--bg-surface); padding: 3rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-subtle);">
+        <h3 style="color: var(--gold-light); margin-bottom: 0.5rem;">No Orders Match "{{ active_status }}"</h3>
+        <p style="color: var(--text-dim); margin-bottom: 1.5rem;">Try selecting another status tab or view all orders.</p>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-outline btn-sm">View All Orders</a>
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+{% endblock %}

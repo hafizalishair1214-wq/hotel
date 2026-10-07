@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Kitchen Interruption | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+<div class="container section" style="min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center;">
+  <div style="background: var(--bg-card); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: 3.5rem 2rem; max-width: 580px; box-shadow: var(--shadow-card);">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔥</div>
+    <span class="section-tag" style="color: #f87171;">System Error 500</span>
+    <h1 style="font-size: 2rem; color: #fca5a5; margin-bottom: 1rem;">Temporary Kitchen Interruption</h1>
+    <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem;">
+      Our kitchen servers encountered an unexpected condition while preparing this request. Our technical khansamas have been notified.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ url_for('index') }}" class="btn btn-primary">
+        Return to Home
+      </a>
+      <a href="https://wa.me/{{ restaurant_whatsapp }}?text=Hello%20Zaiqa%20Royale,%20I%20experienced%20an%20error%20on%20the%20website." target="_blank" class="btn btn-whatsapp">
+        WhatsApp Concierge
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

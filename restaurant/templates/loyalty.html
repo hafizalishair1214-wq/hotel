@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}Royal Rewards & Loyalty Points Club | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+
+<!-- LOYALTY HERO SECTION -->
+<section style="background: linear-gradient(180deg, rgba(10, 11, 13, 0.85) 0%, rgba(10, 11, 13, 0.98) 100%), url('{{ url_for('static', filename='images/restaurant-interior.jpg') }}') center/cover; padding: 4.5rem 0 3rem; text-align: center; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container" style="max-width: 860px;">
+    <div class="hero-eyebrow">
+      <span>👑</span>
+      <span>Shahi Dastarkhwan Club</span>
+      <span>👑</span>
+    </div>
+    <h1 class="section-title">Royal Rewards & Privilege Club</h1>
+    <p class="section-subtitle" style="margin-bottom: 1.5rem;">
+      Indulge in Pakistan's most prestigious culinary rewards program. Earn royal points on every order, unlock higher nobility tiers, and redeem points for lavish feast discounts and complimentary chef specialities.
+    </p>
+
+    {% if not current_user.is_authenticated or current_user.is_admin() %}
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('customer_register') }}" class="btn btn-primary">
+          Join Royal Club (+100 Free Bonus Points)
+        </a>
+        <a href="{{ url_for('customer_login') }}" class="btn btn-outline">
+          Member Sign In
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="container section">
+
+  {% if current_user.is_authenticated and not current_user.is_admin() %}
+    <!-- ========================================== -->
+    <!-- LOGGED IN MEMBER DASHBOARD -->
+    <!-- ========================================== -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3.5rem; align-items: stretch;">
+      
+      <!-- Digital Royal Membership Card -->
+      <div style="background: linear-gradient(135deg, #1c1d24 0%, #121418 50%, #0d0e12 100%); border: 2px solid var(--gold-primary); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 25px rgba(212,175,55,0.2); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+        
+        <!-- Foil Watermark Background Icon -->
+        <div style="position: absolute; right: -20px; bottom: -20px; font-size: 10rem; opacity: 0.05; pointer-events: none; color: var(--gold-primary);">
+          👑
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+            <div>
+              <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.25em; color: var(--gold-primary); font-weight: 700;">Zaiqa Royale Lahore</span>
+              <h3 style="font-size: 1.45rem; letter-spacing: 0.1em; margin-top: 2px; color: var(--text-cream);">SHAHI CLUB CARD</h3>
+            </div>
+            <div style="background: rgba(212, 175, 55, 0.15); border: 1px solid var(--gold-primary); padding: 0.35rem 0.9rem; border-radius: 50px; font-size: 0.78rem; font-weight: 700; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.1em;">
+              {{ current_user.membership_tier }} Tier
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.75rem;">
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-dim); margin-bottom: 4px;">Noble Patron</div>
+            <div style="font-size: 1.35rem; font-weight: 600; color: var(--text-cream);">{{ current_user.name }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">{{ current_user.email }}</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(212,175,55,0.25); padding-top: 1.25rem;">
+          <div>
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-dim);">Member ID</div>
+            <div style="font-family: monospace; font-size: 0.95rem; color: var(--gold-light); letter-spacing: 0.1em;">ZR-2026-{{ "%04d"|format(current_user.id) }}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-dim);">Member Since</div>
+            <div style="font-size: 0.85rem; color: var(--text-cream);">{{ current_user.created_at.strftime('%b %Y') }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Points Summary & Tier Progress Card -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+        
+        <div>
+          <span class="section-tag" style="margin-bottom: 0.4rem;">Your Royal Treasury</span>
+          <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 0.5rem;">
+            <span style="font-size: 3rem; font-weight: 800; color: var(--gold-light); font-variant-numeric: tabular-nums; line-height: 1;">
+              {{ current_user.loyalty_points }}
+            </span>
+            <span style="font-size: 1.2rem; color: var(--gold-primary); font-weight: 600;">Royal Points</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Equivalent to <strong>PKR {{ current_user.loyalty_points }}</strong> redeemable discount on any banquet order.
+          </p>
+
+          <!-- Progress to Next Tier -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.5rem;">
+              <span style="color: var(--text-cream); font-weight: 600;">Current: {{ current_user.membership_tier }}</span>
+              {% if current_user.membership_tier != 'Royal Platinum' %}
+                <span style="color: var(--gold-primary); font-weight: 600;">
+                  {{ current_user.points_to_next_tier() }} pts to unlock {% if current_user.membership_tier == 'Silver' %}Gold{% else %}Platinum{% endif %}
+                </span>
+              {% else %}
+                <span style="color: #4ade80; font-weight: 600;">Highest Nobility Achieved</span>
+              {% endif %}
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.08); border-radius: 50px; overflow: hidden; position: relative;">
+              <div style="width: {{ current_user.tier_progress_percent() }}%; height: 100%; background: linear-gradient(90deg, var(--gold-muted), var(--gold-primary)); border-radius: 50px; transition: width 0.6s ease;"></div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-dim); margin-top: 6px;">
+              <span>Lifetime Points: <strong>{{ current_user.lifetime_points }} pts</strong></span>
+              <span>{{ current_user.tier_progress_percent() }}% Complete</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="{{ url_for('menu') }}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;">
+            Order Feast & Earn Points
+          </a>
+          <a href="{{ url_for('cart') }}" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">
+            Redeem at Checkout
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Tier Perks Active Banner -->
+    <div style="background: rgba(212, 175, 55, 0.08); border: 1px solid var(--gold-border); border-radius: var(--radius-md); padding: 1.5rem 2rem; margin-bottom: 3.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-size: 2.2rem;">✨</span>
+        <div>
+          <h4 style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 2px;">
+            Active {{ current_user.membership_tier }} Privileges
+          </h4>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+            Earning Rate: <strong>{{ current_user.tier_perks()['multiplier'] }} points</strong> per PKR 100 spent · {{ current_user.tier_perks()['seating'] }}
+          </p>
+        </div>
+      </div>
+      <div style="font-size: 0.82rem; background: var(--bg-surface); padding: 0.5rem 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); color: var(--gold-light);">
+        🎁 Current Gift: {{ current_user.tier_perks()['gift'] }}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- ========================================== -->
+  <!-- HOW TO EARN & REDEEM STEPS -->
+  <!-- ========================================== -->
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <span class="section-tag">Nobility Privileges</span>
+    <h2 class="section-title">How Royal Rewards Work</h2>
+    <p class="section-subtitle">
+      Simple, transparent, and instantly rewarding every time you dine or order from Zaiqa Royale.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; margin-bottom: 4rem;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(212,175,55,0.1); border: 1px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--gold-primary); margin: 0 auto 1.25rem;">
+        1
+      </div>
+      <h3 style="font-size: 1.2rem; color: var(--text-cream); margin-bottom: 0.5rem;">Join Free</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
+        Create a complimentary patron account in under 30 seconds and receive an instant <strong>100 Welcome Points</strong> in your treasury.
+      </p>
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(212,175,55,0.1); border: 1px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--gold-primary); margin: 0 auto 1.25rem;">
+        2
+      </div>
+      <h3 style="font-size: 1.2rem; color: var(--text-cream); margin-bottom: 0.5rem;">Feast & Accumulate</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
+        Every feast ordered online or enjoyed at our heritage palace earns <strong>1 Royal Point for every PKR 100 spent</strong>.
+      </p>
+    </div>
+
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
+      <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(212,175,55,0.1); border: 1px solid var(--gold-primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--gold-primary); margin: 0 auto 1.25rem;">
+        3
+      </div>
+      <h3 style="font-size: 1.2rem; color: var(--text-cream); margin-bottom: 0.5rem;">Redeem for Discounts</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
+        Apply your points directly during checkout for instant rupees off your bill, or unlock free naans, desserts, and VIP table access.
+      </p>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MEMBERSHIP TIERS COMPARISON -->
+  <!-- ========================================== -->
+  <div style="text-align: center; margin-bottom: 3rem;">
+    <span class="section-tag">Royal Nobility Tiers</span>
+    <h2 class="section-title">Elevate Your Dining Status</h2>
+    <p class="section-subtitle">
+      As you savor more of Lahore's culinary heritage, your status ascends to higher tiers with enhanced privileges.
+    </p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 4.5rem;">
+    
+    <!-- Silver Tier -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2.25rem; display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span style="font-size: 1.35rem; font-weight: 700; color: #cbd5e1;">Silver Noble</span>
+        <span style="font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 4px; color: #94a3b8;">Entry Level</span>
+      </div>
+      <div style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 1.5rem;">0 – 999 Lifetime Points</div>
+      
+      <ul style="list-style: none; margin-bottom: 2rem; font-size: 0.88rem; line-height: 2; flex: 1;">
+        <li style="color: var(--text-cream);">✓ 100 Welcome Points upon registration</li>
+        <li style="color: var(--text-cream);">✓ Earn 1.0x Point per PKR 100 spent</li>
+        <li style="color: var(--text-cream);">✓ Standard table reservations online</li>
+        <li style="color: var(--text-cream);">✓ Access to feast tracking & receipts</li>
+      </ul>
+
+      <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <span style="font-size: 0.8rem; color: var(--text-dim);">Included with all free patron accounts</span>
+      </div>
+    </div>
+
+    <!-- Gold Tier (Featured) -->
+    <div style="background: var(--bg-surface); border: 2px solid var(--gold-primary); border-radius: var(--radius-md); padding: 2.25rem; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(212,175,55,0.15);">
+      <div style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--gold-primary); color: #000; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; padding: 3px 14px; border-radius: 50px;">
+        Most Popular
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span style="font-size: 1.35rem; font-weight: 700; color: var(--gold-light);">Gold Aristocrat</span>
+        <span style="font-size: 0.75rem; background: rgba(212,175,55,0.2); padding: 3px 8px; border-radius: 4px; color: var(--gold-light);">1,000+ Pts</span>
+      </div>
+      <div style="font-size: 0.88rem; color: var(--gold-muted); margin-bottom: 1.5rem;">1,000 – 2,499 Lifetime Points</div>
+      
+      <ul style="list-style: none; margin-bottom: 2rem; font-size: 0.88rem; line-height: 2; flex: 1;">
+        <li style="color: var(--text-cream);">✓ <strong>1.5x Accelerated Point Earning</strong></li>
+        <li style="color: var(--text-cream);">✓ <strong>5% banquet dining privilege discount</strong></li>
+        <li style="color: var(--text-cream);">✓ Complimentary Tandoori Roghni Naan basket</li>
+        <li style="color: var(--text-cream);">✓ Preferred courtyard dining seating</li>
+        <li style="color: var(--text-cream);">✓ Priority WhatsApp concierge hotline</li>
+      </ul>
+
+      <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <span style="font-size: 0.8rem; color: var(--gold-light);">Achievable in 3–4 family feasts</span>
+      </div>
+    </div>
+
+    <!-- Royal Platinum Tier -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2.25rem; display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span style="font-size: 1.35rem; font-weight: 700; color: #f3e5ab;">Royal Platinum</span>
+        <span style="font-size: 0.75rem; background: rgba(243,229,171,0.2); padding: 3px 8px; border-radius: 4px; color: #f3e5ab;">2,500+ Pts</span>
+      </div>
+      <div style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 1.5rem;">2,500+ Lifetime Points</div>
+      
+      <ul style="list-style: none; margin-bottom: 2rem; font-size: 0.88rem; line-height: 2; flex: 1;">
+        <li style="color: var(--text-cream);">✓ <strong>2.0x Double Point Earning</strong></li>
+        <li style="color: var(--text-cream);">✓ <strong>10% banquet dining privilege discount</strong></li>
+        <li style="color: var(--text-cream);">✓ VIP Rootyard Terrace reservation priority</li>
+        <li style="color: var(--text-cream);">✓ Complimentary Shahi Pistachio Kheer & Kahwa</li>
+        <li style="color: var(--text-cream);">✓ Personal Head Khansama table greeting</li>
+      </ul>
+
+      <div style="text-align: center; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <span style="font-size: 0.8rem; color: var(--gold-light);">Ultimate Mughal Gastronomy Nobility</span>
+      </div>
+    </div>
+
+  </div>
+
+  {% if current_user.is_authenticated and not current_user.is_admin() %}
+    <!-- ========================================== -->
+    <!-- REAL-TIME POINTS ACTIVITY LEDGER -->
+    <!-- ========================================== -->
+    <div style="margin-bottom: 4rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <span class="section-tag" style="margin-bottom: 0.2rem;">Treasury Records</span>
+          <h3 style="font-size: 1.4rem; color: var(--gold-light);">Points Activity History</h3>
+        </div>
+        <span style="font-size: 0.85rem; color: var(--text-dim);">
+          {{ current_user.transactions|length }} total transactions
+        </span>
+      </div>
+
+      {% if current_user.transactions %}
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Activity Description</th>
+                <th>Order Ref</th>
+                <th>Type</th>
+                <th>Points Change</th>
+                <th>Balance After</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tx in current_user.transactions %}
+                <tr>
+                  <td><small style="color: var(--text-dim);">{{ tx.formatted_date() }}</small></td>
+                  <td>
+                    <strong style="color: var(--text-cream);">{{ tx.description }}</strong>
+                  </td>
+                  <td>
+                    {% if tx.order_id %}
+                      <a href="{{ url_for('order_success', order_id=tx.order_id) }}" style="color: var(--gold-primary); font-weight: 600;">
+                        Order #{{ tx.order_id }}
+                      </a>
+                    {% else %}
+                      <span style="color: var(--text-dim);">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if tx.points_change > 0 %}
+                      <span class="status-badge status-confirmed">Earned</span>
+                    {% else %}
+                      <span class="status-badge status-new">Redeemed</span>
+                    {% endif %}
+                  </td>
+                  <td style="font-weight: 700; font-variant-numeric: tabular-nums; color: {% if tx.points_change > 0 %}#4ade80{% else %}#f87171{% endif %};">
+                    {% if tx.points_change > 0 %}+{{ tx.points_change }}{% else %}{{ tx.points_change }}{% endif %} pts
+                  </td>
+                  <td style="font-weight: 600; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+                    {{ tx.balance_after }} pts
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="background: var(--bg-surface); padding: 2.5rem; text-align: center; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <p style="color: var(--text-muted); margin: 0;">No loyalty transactions recorded yet. Place your first feast order to start accumulating Royal Points!</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MEMBER ORDER HISTORY -->
+    <!-- ========================================== -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <div>
+          <span class="section-tag" style="margin-bottom: 0.2rem;">Dining History</span>
+          <h3 style="font-size: 1.4rem; color: var(--gold-light);">Your Feast Orders</h3>
+        </div>
+        <a href="{{ url_for('menu') }}" class="btn btn-outline btn-sm">Order New Feast →</a>
+      </div>
+
+      {% if current_user.orders %}
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Dishes</th>
+                <th>Total Paid</th>
+                <th>Points Earned</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ord in current_user.orders|reverse %}
+                <tr>
+                  <td><strong>#{{ ord.id }}</strong></td>
+                  <td><small style="color: var(--text-dim);">{{ ord.formatted_date() }}</small></td>
+                  <td>
+                    <span style="font-size: 0.82rem; color: var(--text-muted);">
+                      {% for it in ord.items %}
+                        {{ it.quantity }}x {{ it.product.name if it.product else 'Dish' }}{% if not loop.last %}, {% endif %}
+                      {% endfor %}
+                    </span>
+                  </td>
+                  <td style="font-weight: 700; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+                    {{ currency }} {{ ord.total|int }}
+                  </td>
+                  <td>
+                    <span style="color: #4ade80; font-weight: 700;">+{{ ord.points_earned }} pts</span>
+                    {% if ord.points_redeemed > 0 %}
+                      <small style="color: var(--text-dim); display: block;">(-{{ ord.points_redeemed }} redeemed)</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <span class="status-badge status-{{ ord.status.lower().replace(' ', '-') }}">
+                      {{ ord.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('order_success', order_id=ord.id) }}" class="btn btn-outline btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.78rem;">
+                      View Invoice
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="background: var(--bg-surface); padding: 2.5rem; text-align: center; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">You have not placed any orders under your registered account yet.</p>
+          <a href="{{ url_for('menu') }}" class="btn btn-primary btn-sm">Explore Royal Menu & Place Order</a>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+
+{% endblock %}

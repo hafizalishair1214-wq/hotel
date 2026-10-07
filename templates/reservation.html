@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Book a Table | Royal Dining Reservations — Zaiqa Royale{% endblock %}
+
+{% block content %}
+
+<!-- RESERVATION HERO -->
+<section style="background: linear-gradient(180deg, rgba(10, 11, 13, 0.75) 0%, rgba(10, 11, 13, 0.98) 100%), url('{{ url_for('static', filename='images/restaurant-interior.jpg') }}') center/cover; padding: 4.5rem 0 3rem; text-align: center; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <span class="section-tag">Royal Dining Experience</span>
+    <h1 class="section-title">Reserve Your Table</h1>
+    <p class="section-subtitle" style="margin-bottom: 0;">
+      Enjoy a memorable evening surrounded by authentic Mughal brickwork, ambient chandeliers, and personalized table hospitality.
+    </p>
+  </div>
+</section>
+
+<div class="container section" style="max-width: 900px;">
+  
+  {% if booking_success and booking %}
+    <!-- Booking Confirmation Card -->
+    <div style="background: var(--bg-card); border: 2px solid var(--gold-border); border-radius: var(--radius-md); padding: 3rem 2.5rem; text-align: center; box-shadow: var(--shadow-card); margin-bottom: 3rem;">
+      <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(34, 197, 94, 0.15); border: 2px solid #22c55e; color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1.25rem;">
+        ✓
+      </div>
+      <span class="section-tag">Reservation Confirmed</span>
+      <h2 style="font-size: 1.85rem; margin-bottom: 0.5rem; color: var(--gold-light);">
+        Table Reserved for {{ booking.customer_name }}
+      </h2>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        Reservation Reference <strong>#{{ booking.id }}</strong> has been logged with our head maître d'. We look forward to hosting you!
+      </p>
+
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.5rem; max-width: 520px; margin: 0 auto 2rem; text-align: left; font-size: 0.92rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-dim);">Date:</span>
+          <strong>{{ booking.date }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-dim);">Time Slot:</span>
+          <strong>{{ booking.time }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-dim);">Guest Count:</span>
+          <strong>{{ booking.guests }} Persons</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+          <span style="color: var(--text-dim);">Phone Contact:</span>
+          <strong>{{ booking.phone }}</strong>
+        </div>
+        {% if booking.special_request %}
+          <div style="border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 0.5rem; margin-top: 0.5rem;">
+            <span style="color: var(--text-dim); display: block; font-size: 0.78rem;">Special Requests / Seating Preference:</span>
+            <span style="color: var(--gold-light); font-style: italic;">{{ booking.special_request }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="https://wa.me/{{ restaurant_whatsapp }}?text=Hello%20Zaiqa%20Royale!%20Confirming%20Reservation%20%23{{ booking.id }}%20under%20{{ booking.customer_name|urlencode }}%20on%20{{ booking.date }}." 
+           target="_blank" 
+           class="btn btn-whatsapp">
+          Confirm via WhatsApp Concierge
+        </a>
+        <a href="{{ url_for('menu') }}" class="btn btn-primary">
+          Browse Banquet Menu
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Reservation Form Card -->
+  <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2.5rem; box-shadow: var(--shadow-card);">
+    <div style="margin-bottom: 2rem;">
+      <h3 style="font-size: 1.4rem; color: var(--gold-light); margin-bottom: 0.4rem;">Dining Details & Guests</h3>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">
+        Reservations are recommended for dinner seating, weekend family banquets, and private executive dining.
+      </p>
+    </div>
+
+    <form action="{{ url_for('reservation') }}" method="POST">
+      <div class="form-grid">
+        
+        <div class="form-group">
+          <label class="form-label" for="customer_name">Guest Name *</label>
+          <input type="text" id="customer_name" name="customer_name" class="form-input" placeholder="e.g. Sardar Ali Khan" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone / WhatsApp Number *</label>
+          <input type="tel" id="phone" name="phone" class="form-input" placeholder="e.g. 0321-9876543" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="e.g. sardar@example.com">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="guests">Number of Guests *</label>
+          <select id="guests" name="guests" class="form-select" required>
+            <option value="1">1 Person (Solo Dining)</option>
+            <option value="2" selected>2 Persons (Intimate Table)</option>
+            <option value="4">4 Persons (Family Table)</option>
+            <option value="6">6 Persons (Royal Table)</option>
+            <option value="8">8 Persons (Banquet Group)</option>
+            <option value="12">10–12 Persons (Private Alcove)</option>
+            <option value="20">15–20+ Persons (Mughal Hall Banquet)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="date">Reservation Date *</label>
+          <input type="date" id="date" name="date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="time">Time Slot *</label>
+          <select id="time" name="time" class="form-select" required>
+            <option value="12:30 PM">12:30 PM (Lunch Banquet)</option>
+            <option value="1:30 PM">1:30 PM (Lunch Banquet)</option>
+            <option value="2:30 PM">2:30 PM (Late Lunch)</option>
+            <option value="7:00 PM">7:00 PM (Early Dinner)</option>
+            <option value="8:00 PM" selected>8:00 PM (Prime Dinner)</option>
+            <option value="9:00 PM">9:00 PM (Prime Dinner)</option>
+            <option value="10:00 PM">10:00 PM (Late Evening Feast)</option>
+            <option value="11:00 PM">11:00 PM (Night Courtyard Dining)</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label" for="special_request">Special Request / Celebration / Seating Preference</label>
+          <textarea id="special_request" name="special_request" rows="3" class="form-textarea" placeholder="e.g. Celebrating 25th Wedding Anniversary, prefer rooftop courtyard terrace seating, high chair needed for toddler"></textarea>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;">
+          CONFIRM TABLE RESERVATION →
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Reservation Policy Notes -->
+  <div style="margin-top: 2.5rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; text-align: center;">
+    <div style="padding: 1.25rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="font-size: 1.4rem; margin-bottom: 0.5rem;">⏱️</div>
+      <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">15-Min Grace Period</h4>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0;">Tables are held for 15 minutes past scheduled arrival time.</p>
+    </div>
+
+    <div style="padding: 1.25rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="font-size: 1.4rem; margin-bottom: 0.5rem;">🚗</div>
+      <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Complimentary Valet</h4>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0;">Seamless valet parking provided right at our palace entrance.</p>
+    </div>
+
+    <div style="padding: 1.25rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div style="font-size: 1.4rem; margin-bottom: 0.5rem;">👑</div>
+      <h4 style="font-size: 0.95rem; margin-bottom: 0.25rem;">Dress Code</h4>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0;">Smart casual or traditional Pakistani formal attire welcomed.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Default date to today
+document.addEventListener('DOMContentLoaded', function() {
+  const dateInput = document.getElementById('date');
+  if (dateInput && !dateInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    dateInput.min = today;
+  }
+});
+</script>
+
+{% endblock %}

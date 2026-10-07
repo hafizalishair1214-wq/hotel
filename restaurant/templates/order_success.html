@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} Confirmed | Zaiqa Royale{% endblock %}
+
+{% block content %}
+
+<div class="container section" style="max-width: 780px;">
+  
+  <div style="background: var(--bg-card); border: 2px solid var(--gold-border); border-radius: var(--radius-md); padding: 3rem 2.5rem; box-shadow: var(--shadow-card); text-align: center;">
+    
+    <div style="width: 72px; height: 72px; border-radius: 50%; background: rgba(34, 197, 94, 0.15); border: 2px solid #22c55e; color: #22c55e; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem;">
+      ✓
+    </div>
+
+    <span class="section-tag">Royal Order Dispatched to Kitchen</span>
+    <h1 class="section-title" style="margin-bottom: 0.5rem;">Thank You, {{ order.customer_name }}!</h1>
+    <p style="font-size: 1.1rem; color: var(--gold-light); margin-bottom: 2rem;">
+      Your order <strong>#{{ order.id }}</strong> has been safely recorded in our royal kitchen database.
+    </p>
+
+    <!-- Tracking Badge -->
+    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); padding: 0.5rem 1.25rem; border-radius: 50px; font-size: 0.88rem; color: #93c5fd; margin-bottom: 2rem;">
+      <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; animation: pulse 1.5s infinite;"></span>
+      <span>Current Status: <strong>{{ order.status }}</strong> — Kitchen Preparing Spices</span>
+    </div>
+
+    {% if order.points_earned > 0 or order.points_redeemed > 0 %}
+      <!-- Royal Rewards Earned & Redeemed Celebration Box -->
+      <div style="background: linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(30,32,38,0.9) 100%); border: 1px solid var(--gold-primary); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2rem; text-align: left; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 2.5rem;">👑</span>
+          <div>
+            <h4 style="font-size: 1.15rem; color: var(--gold-light); margin-bottom: 2px;">Shahi Loyalty Points Rewarded!</h4>
+            <p style="font-size: 0.88rem; color: var(--text-cream); margin: 0;">
+              {% if order.points_earned > 0 %}
+                You earned <strong style="color: #4ade80;">+{{ order.points_earned }} Royal Points</strong> on this feast!
+              {% endif %}
+              {% if order.points_redeemed > 0 %}
+                <span style="color: var(--gold-primary);">(Redeemed {{ order.points_redeemed }} pts for PKR {{ order.discount_amount|int }} off)</span>
+              {% endif %}
+            </p>
+            {% if current_user.is_authenticated and not current_user.is_admin() %}
+              <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                Current Treasury Balance: <strong>{{ current_user.loyalty_points }} Royal Points</strong> ({{ current_user.membership_tier }} Tier)
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <div>
+          <a href="{{ url_for('loyalty') }}" class="btn btn-primary btn-sm" style="font-size: 0.82rem;">
+            View Loyalty Treasury →
+          </a>
+        </div>
+      </div>
+    {% elif not current_user.is_authenticated %}
+      <!-- Guest Loyalty Invitation -->
+      <div style="background: rgba(212, 175, 55, 0.08); border: 1px dashed var(--gold-border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.75rem;">🎁</span>
+          <div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--gold-light);">Claim Your Points on Future Orders</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              Create a free patron account and claim +100 bonus welcome points today.
+            </div>
+          </div>
+        </div>
+        <a href="{{ url_for('customer_register') }}" class="btn btn-outline btn-sm">
+          Join Shahi Club (+100 Pts)
+        </a>
+      </div>
+    {% endif %}
+
+    <!-- Receipt Details Breakdown -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 1.75rem; text-align: left; margin-bottom: 2rem;">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Order Date & Time</span>
+          <strong style="color: var(--text-cream);">{{ order.formatted_date() }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Payment Method</span>
+          <strong style="color: var(--gold-primary);">{{ order.payment_method }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Contact Phone</span>
+          <strong style="color: var(--text-cream);">{{ order.phone }}</strong>
+        </div>
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Delivery City</span>
+          <strong style="color: var(--text-cream);">{{ order.city }}</strong>
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Delivery Address</span>
+          <strong style="color: var(--text-cream);">{{ order.address }}</strong>
+        </div>
+        {% if order.order_notes %}
+          <div style="grid-column: 1 / -1;">
+            <span style="color: var(--text-dim); display: block; font-size: 0.78rem; text-transform: uppercase;">Special Notes</span>
+            <span style="color: var(--text-muted); font-style: italic;">{{ order.order_notes }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Itemized Table -->
+      <h4 style="font-size: 1rem; color: var(--gold-light); margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.4rem;">
+        Itemized Feast Breakdown
+      </h4>
+      <div style="margin-bottom: 1rem;">
+        {% for item in order.items %}
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; font-size: 0.88rem; border-bottom: 1px dashed rgba(255,255,255,0.05);">
+            <span>{{ item.quantity }}x {{ item.product.name if item.product else 'Dish' }}</span>
+            <span style="font-variant-numeric: tabular-nums; font-weight: 600; color: var(--gold-light);">
+              {{ currency }} {{ (item.price * item.quantity)|int }}
+            </span>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Calculation Rows -->
+      <div style="padding-top: 0.5rem; font-size: 0.9rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+          <span style="color: var(--text-muted);">Dishes Subtotal:</span>
+          <span style="font-variant-numeric: tabular-nums;">{{ currency }} {{ order.subtotal|int }}</span>
+        </div>
+        {% if order.discount_amount > 0 %}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: #4ade80;">
+            <span>Royal Points Discount ({{ order.points_redeemed }} pts):</span>
+            <span style="font-variant-numeric: tabular-nums;">-{{ currency }} {{ order.discount_amount|int }}</span>
+          </div>
+        {% endif %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="color: var(--text-muted);">Lahore Delivery Fee:</span>
+          <span style="font-variant-numeric: tabular-nums;">{{ currency }} {{ order.delivery_fee|int }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; color: var(--gold-light); border-top: 1px solid var(--gold-border); padding-top: 0.75rem;">
+          <span>Grand Total:</span>
+          <span style="font-variant-numeric: tabular-nums;">{{ currency }} {{ order.total|int }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="https://wa.me/{{ restaurant_whatsapp }}?text=Hello%20Zaiqa%20Royale!%20I%20am%20tracking%20my%20Order%20%23{{ order.id }}%20under%20{{ order.customer_name|urlencode }}." 
+         target="_blank" 
+         class="btn btn-whatsapp">
+        Track on WhatsApp
+      </a>
+      <a href="{{ url_for('loyalty') }}" class="btn btn-primary">
+        👑 View My Rewards
+      </a>
+      <a href="{{ url_for('menu') }}" class="btn btn-outline">
+        Return to Royal Menu
+      </a>
+      <button onclick="window.print()" class="btn btn-outline" style="opacity: 0.8;">
+        Print Invoice 🖨️
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

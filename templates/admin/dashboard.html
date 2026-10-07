@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Royal Management Portal — Zaiqa Royale{% endblock %}
+
+{% block content %}
+
+<div class="admin-layout">
+  
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem;">
+      <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-primary);">Logged in as</span>
+      <h3 style="font-size: 1.1rem; color: var(--text-cream); margin-top: 2px;">{{ current_user.name }}</h3>
+      <span style="font-size: 0.75rem; color: var(--text-dim);">Role: {{ current_user.role|capitalize }}</span>
+    </div>
+
+    <ul class="admin-nav-list">
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-link active">
+          <span>📊</span> <span>Dashboard Overview</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_products') }}" class="admin-nav-link">
+          <span>🥘</span> <span>Manage Products</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_orders') }}" class="admin-nav-link">
+          <span>🛍️</span> <span>Orders & Dispatch</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_reservations') }}" class="admin-nav-link">
+          <span>📅</span> <span>Table Bookings</span>
+        </a>
+      </li>
+      <li class="admin-nav-item" style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <a href="{{ url_for('index') }}" class="admin-nav-link" target="_blank">
+          <span>↗️</span> <span>View Public Website</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_logout') }}" class="admin-nav-link" style="color: #f87171;">
+          <span>🚪</span> <span>Log Out</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Admin Main Content -->
+  <div class="admin-content">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="section-tag">Executive Oversight</span>
+        <h1 style="font-size: 1.85rem; color: var(--gold-light);">Management Dashboard</h1>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <a href="{{ url_for('admin_products') }}" class="btn btn-primary btn-sm">+ Add New Dish</a>
+        <a href="{{ url_for('admin_orders') }}" class="btn btn-outline btn-sm">Process Orders</a>
+      </div>
+    </div>
+
+    <!-- 4 High-Level Metric Cards -->
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total Orders</div>
+        <div class="metric-value">{{ total_orders }}</div>
+        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-top: 4px;">Lifetime Kitchen Dispatches</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Total Revenue</div>
+        <div class="metric-value">{{ currency }} {{ total_revenue|int }}</div>
+        <div style="font-size: 0.75rem; color: #4ade80; margin-top: 4px;">Gross Sales Volume</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Table Reservations</div>
+        <div class="metric-value">{{ total_reservations }}</div>
+        <div style="font-size: 0.75rem; color: var(--gold-primary); margin-top: 4px;">Guests Hosted in Lahore</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-label">Active Menu Dishes</div>
+        <div class="metric-value">{{ total_products }}</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">Database-Driven Catalog</div>
+      </div>
+    </div>
+
+    <!-- Recent Orders Section -->
+    <div style="margin-bottom: 3rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.25rem; color: var(--gold-light);">Recent Customer Orders</h3>
+        <a href="{{ url_for('admin_orders') }}" style="font-size: 0.85rem; color: var(--gold-primary);">View All Orders →</a>
+      </div>
+
+      {% if recent_orders %}
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Items Ordered</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Current Status</th>
+                <th>Quick Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+                <tr>
+                  <td><strong>#{{ order.id }}</strong></td>
+                  <td>
+                    <div style="font-weight: 600; color: var(--text-cream);">{{ order.customer_name }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-dim);">{{ order.city }}</div>
+                  </td>
+                  <td>{{ order.phone }}</td>
+                  <td>
+                    <span style="font-size: 0.82rem; color: var(--gold-light);">
+                      {% for it in order.items %}
+                        {{ it.quantity }}x {{ it.product.name if it.product else 'Dish' }}{% if not loop.last %}, {% endif %}
+                      {% endfor %}
+                    </span>
+                  </td>
+                  <td style="font-weight: 700; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+                    {{ currency }} {{ order.total|int }}
+                  </td>
+                  <td><small>{{ order.payment_method }}</small></td>
+                  <td>
+                    {% if order.status == 'New' %}
+                      <span class="status-badge status-new">New</span>
+                    {% elif order.status == 'Confirmed' %}
+                      <span class="status-badge status-confirmed">Confirmed</span>
+                    {% elif order.status == 'Preparing' %}
+                      <span class="status-badge status-preparing">Preparing</span>
+                    {% elif order.status == 'Ready' %}
+                      <span class="status-badge status-ready">Ready</span>
+                    {% elif order.status == 'Out for Delivery' %}
+                      <span class="status-badge status-ready">Out for Delivery</span>
+                    {% elif order.status == 'Delivered' %}
+                      <span class="status-badge status-delivered">Delivered</span>
+                    {% else %}
+                      <span class="status-badge status-cancelled">{{ order.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form action="{{ url_for('admin_order_status', order_id=order.id) }}" method="POST" style="display: flex; gap: 4px;">
+                      <select name="status" class="form-select" style="padding: 0.25rem 0.5rem; font-size: 0.78rem; height: 32px;" onchange="this.form.submit()">
+                        <option value="" disabled selected>Update</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Preparing">Preparing</option>
+                        <option value="Ready">Ready</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancel</option>
+                      </select>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="background: var(--bg-surface); padding: 2rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-subtle);">
+          <p style="color: var(--text-dim); margin: 0;">No customer orders placed yet. Place an order via the public menu to test the system.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Recent Reservations Section -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+        <h3 style="font-size: 1.25rem; color: var(--gold-light);">Recent Table Bookings</h3>
+        <a href="{{ url_for('admin_reservations') }}" style="font-size: 0.85rem; color: var(--gold-primary);">View All Bookings →</a>
+      </div>
+
+      {% if recent_reservations %}
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Booking #</th>
+                <th>Guest Name</th>
+                <th>Contact Phone</th>
+                <th>Date & Time</th>
+                <th>Party Size</th>
+                <th>Special Request</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for res in recent_reservations %}
+                <tr>
+                  <td><strong>#{{ res.id }}</strong></td>
+                  <td style="font-weight: 600;">{{ res.customer_name }}</td>
+                  <td>{{ res.phone }}</td>
+                  <td>{{ res.date }} at {{ res.time }}</td>
+                  <td>{{ res.guests }} Guests</td>
+                  <td style="font-size: 0.8rem; color: var(--text-dim); max-width: 220px;">
+                    {{ res.special_request or 'None' }}
+                  </td>
+                  <td>
+                    {% if res.status == 'Confirmed' %}
+                      <span class="status-badge status-confirmed">Confirmed</span>
+                    {% elif res.status == 'Pending' %}
+                      <span class="status-badge status-preparing">Pending</span>
+                    {% else %}
+                      <span class="status-badge status-cancelled">{{ res.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <form action="{{ url_for('admin_reservation_status', res_id=res.id) }}" method="POST" style="display: inline-flex; gap: 4px;">
+                      {% if res.status != 'Confirmed' %}
+                        <button type="submit" name="status" value="Confirmed" class="btn btn-outline btn-sm" style="color: #4ade80; border-color: rgba(74, 222, 128, 0.3);">✓</button>
+                      {% endif %}
+                      {% if res.status != 'Cancelled' %}
+                        <button type="submit" name="status" value="Cancelled" class="btn btn-outline btn-sm" style="color: #f87171; border-color: rgba(248, 113, 113, 0.3);">✕</button>
+                      {% endif %}
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="background: var(--bg-surface); padding: 2rem; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-subtle);">
+          <p style="color: var(--text-dim); margin: 0;">No table reservations on record. Test the booking form on the public site.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Contact & Heritage Location | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+
+<!-- CONTACT HERO -->
+<section style="background: linear-gradient(180deg, rgba(10, 11, 13, 0.8) 0%, rgba(10, 11, 13, 0.98) 100%), url('{{ url_for('static', filename='images/restaurant-exterior.jpg') }}') center/cover; padding: 4.5rem 0 3rem; text-align: center; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <span class="section-tag">Palace Concierge</span>
+    <h1 class="section-title">Contact & Location</h1>
+    <p class="section-subtitle" style="margin-bottom: 0;">
+      Whether reserving a banquet table, arranging corporate catering, or visiting for dinner, our hospitality team is at your service.
+    </p>
+  </div>
+</section>
+
+<div class="container section">
+  
+  <div class="info-strip" style="margin-bottom: 3.5rem;">
+    <div class="info-card">
+      <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📍</div>
+      <h4>Heritage Address</h4>
+      <p style="color: var(--text-cream); font-weight: 500;">{{ restaurant_address }}</p>
+      <p style="font-size: 0.8rem; color: var(--gold-light); margin-top: 4px;">{{ restaurant_map_location }}</p>
+    </div>
+
+    <div class="info-card">
+      <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📞</div>
+      <h4>Direct Telephone</h4>
+      <p><a href="tel:{{ restaurant_phone }}" style="color: var(--gold-light); font-weight: 600;">{{ restaurant_phone }}</a></p>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Daily 11:30 AM – 1:30 AM</p>
+    </div>
+
+    <div class="info-card">
+      <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">💬</div>
+      <h4>WhatsApp Concierge</h4>
+      <p><a href="https://wa.me/{{ restaurant_whatsapp }}" target="_blank" style="color: #25d366; font-weight: 600;">{{ restaurant_whatsapp }}</a></p>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Instant Dispatch & Reservations</p>
+    </div>
+
+    <div class="info-card">
+      <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🕒</div>
+      <h4>Opening Hours</h4>
+      <p style="color: var(--text-cream); font-weight: 500;">{{ restaurant_hours }}</p>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Open 365 Days a Year</p>
+    </div>
+  </div>
+
+  <div class="about-split" style="gap: 3rem; align-items: flex-start;">
+    
+    <!-- Contact Form -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2.5rem; box-shadow: var(--shadow-card);">
+      <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--gold-light);">Send a Direct Inquiry</h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.75rem;">
+        Have a question regarding VIP corporate bookings, weddings, or dietary accommodations?
+      </p>
+
+      <form action="{{ url_for('contact') }}" method="POST">
+        <div class="form-group">
+          <label class="form-label" for="name">Your Name *</label>
+          <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Begum Farzana" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address *</label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="e.g. farzana@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject *</label>
+          <select id="subject" name="subject" class="form-select" required>
+            <option value="Table Reservation Inquiry">Table Reservation Inquiry</option>
+            <option value="Private Mughal Hall Booking">Private Mughal Hall Booking (20–100 Guests)</option>
+            <option value="Outdoor Catering & Live Tandoor">Outdoor Catering & Live Tandoor</option>
+            <option value="Corporate Banquet">Corporate Banquet & Executive Dinners</option>
+            <option value="Dietary or Recipe Feedback">Dietary or Recipe Question</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="message">Message *</label>
+          <textarea id="message" name="message" rows="4" class="form-textarea" placeholder="Please let us know how our royal team can accommodate you..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Send Message to Concierge →
+        </button>
+      </form>
+    </div>
+
+    <!-- Map & Directions -->
+    <div>
+      <div style="margin-bottom: 1rem;">
+        <h3 style="font-size: 1.35rem; margin-bottom: 0.4rem; color: var(--gold-light);">Location in {{ restaurant_map_location }}</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted);">
+          Centrally located on Fort Heritage Promenade with convenient access from Ring Road, Mall Road, and Gulberg.
+        </p>
+      </div>
+
+      <div class="map-wrapper" style="height: 380px;">
+        <iframe 
+          title="Zaiqa Royale Location in Lahore"
+          src="https://maps.google.com/maps?q={{ restaurant_map_location|urlencode }}&t=&z=13&ie=UTF8&iwloc=&output=embed"
+          loading="lazy"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div style="margin-top: 1.25rem; display: flex; gap: 1rem;">
+        <a href="https://maps.google.com/?q={{ restaurant_map_location|urlencode }}" target="_blank" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;">
+          Open in Google Maps ↗
+        </a>
+        <a href="https://wa.me/{{ restaurant_whatsapp }}?text=Hello%20Zaiqa%20Royale!%20Could%20you%20please%20send%20your%20live%20WhatsApp%20location%20pin?" target="_blank" class="btn btn-whatsapp btn-sm" style="flex: 1; text-align: center;">
+          WhatsApp Pin Location
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

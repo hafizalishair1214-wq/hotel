@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Menu Products | Royal Admin — Zaiqa Royale{% endblock %}
+
+{% block content %}
+
+<div class="admin-layout">
+  
+  <!-- Admin Sidebar -->
+  <aside class="admin-sidebar">
+    <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1.25rem;">
+      <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-primary);">Logged in as</span>
+      <h3 style="font-size: 1.1rem; color: var(--text-cream); margin-top: 2px;">{{ current_user.name }}</h3>
+      <span style="font-size: 0.75rem; color: var(--text-dim);">Role: {{ current_user.role|capitalize }}</span>
+    </div>
+
+    <ul class="admin-nav-list">
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-link">
+          <span>📊</span> <span>Dashboard Overview</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_products') }}" class="admin-nav-link active">
+          <span>🥘</span> <span>Manage Products</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_orders') }}" class="admin-nav-link">
+          <span>🛍️</span> <span>Orders & Dispatch</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_reservations') }}" class="admin-nav-link">
+          <span>📅</span> <span>Table Bookings</span>
+        </a>
+      </li>
+      <li class="admin-nav-item" style="margin-top: 2rem; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <a href="{{ url_for('menu') }}" class="admin-nav-link" target="_blank">
+          <span>↗️</span> <span>View Live Menu</span>
+        </a>
+      </li>
+      <li class="admin-nav-item">
+        <a href="{{ url_for('admin_logout') }}" class="admin-nav-link" style="color: #f87171;">
+          <span>🚪</span> <span>Log Out</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Admin Main Content -->
+  <div class="admin-content">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="section-tag">Menu Inventory</span>
+        <h1 style="font-size: 1.85rem; color: var(--gold-light);">Products & Dishes Catalog</h1>
+      </div>
+      <button onclick="document.getElementById('add-product-panel').scrollIntoView({behavior: 'smooth'})" class="btn btn-primary btn-sm">
+        + Create New Dish
+      </button>
+    </div>
+
+    <!-- Category Filter Bar -->
+    <div class="filter-bar" style="justify-content: flex-start; margin-bottom: 1.5rem;">
+      {% for cat in categories %}
+        <a href="{{ url_for('admin_products', category=cat) }}" 
+           class="filter-btn {% if active_category == cat %}active{% endif %}" style="font-size: 0.78rem; padding: 0.4rem 1rem;">
+          {{ cat }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Products Table -->
+    <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow-x: auto; margin-bottom: 3.5rem;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Availability</th>
+            <th>Featured</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <img src="{{ url_for('static', filename='images/' + product.image) }}" 
+                       alt="{{ product.name }}" 
+                       style="width: 52px; height: 52px; border-radius: var(--radius-sm); object-fit: cover; border: 1px solid var(--border-subtle);">
+                  <div>
+                    <strong style="color: var(--text-cream); display: block; font-size: 0.95rem;">{{ product.name }}</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-dim); max-width: 320px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                      {{ product.description }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span style="color: var(--gold-primary); font-weight: 500;">{{ product.category }}</span>
+              </td>
+              <td style="font-weight: 700; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+                {{ currency }} {{ product.price|int }}
+              </td>
+              <td>
+                <form action="{{ url_for('admin_product_toggle_stock', product_id=product.id) }}" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-sm {% if product.availability and product.stock_status == 'In Stock' %}btn-outline{% else %}btn-red{% endif %}" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">
+                    {% if product.availability and product.stock_status == 'In Stock' %}
+                      ✓ In Stock
+                    {% else %}
+                      ✕ Out of Stock
+                    {% endif %}
+                  </button>
+                </form>
+              </td>
+              <td>
+                <form action="{{ url_for('admin_product_toggle_featured', product_id=product.id) }}" method="POST" style="display: inline;">
+                  <button type="submit" class="btn btn-sm {% if product.featured %}btn-primary{% else %}btn-outline{% endif %}" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">
+                    {% if product.featured %}★ Featured{% else %}☆ Normal{% endif %}
+                  </button>
+                </form>
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px;">
+                  <!-- Trigger Edit Modal -->
+                  <button onclick="openEditModal({{ product.id }}, '{{ product.name|replace("'", "\\'") }}', '{{ product.category }}', {{ product.price }}, '{{ product.image }}', '{{ product.stock_status }}', {{ 'true' if product.featured else 'false' }}, '{{ product.description|replace("'", "\\'")|replace("\n", " ") }}')" 
+                          class="btn btn-outline btn-sm" 
+                          style="padding: 0.3rem 0.6rem;" 
+                          title="Edit Dish">
+                    Edit
+                  </button>
+
+                  <!-- Delete Dish Form -->
+                  <form action="{{ url_for('admin_product_delete', product_id=product.id) }}" method="POST" onsubmit="return confirm('Permanently remove {{ product.name }} from the royal menu?');" style="display: inline;">
+                    <button type="submit" class="btn btn-outline btn-sm" style="color: #f87171; border-color: rgba(248, 113, 113, 0.3); padding: 0.3rem 0.6rem;" title="Delete Dish">
+                      🗑️
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add New Dish Panel -->
+    <div id="add-product-panel" style="background: var(--bg-card); border: 1px solid var(--gold-border); border-radius: var(--radius-md); padding: 2.5rem; box-shadow: var(--shadow-card);">
+      <span class="section-tag">New Menu Creation</span>
+      <h3 style="font-size: 1.4rem; color: var(--gold-light); margin-bottom: 1.5rem;">Add Dish to Royal Database</h3>
+
+      <form action="{{ url_for('admin_product_add') }}" method="POST">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label class="form-label" for="add-name">Dish Name *</label>
+            <input type="text" id="add-name" name="name" class="form-input" placeholder="e.g. Peshawari Namak Mandi Karahi" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-category">Category *</label>
+            <select id="add-category" name="category" class="form-select" required>
+              <option value="Karahi">Karahi</option>
+              <option value="BBQ">BBQ</option>
+              <option value="Handi">Handi</option>
+              <option value="Biryani">Biryani</option>
+              <option value="Pakistani" selected>Pakistani</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Desserts">Desserts</option>
+              <option value="Drinks">Drinks</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-price">Price (PKR) *</label>
+            <input type="number" id="add-price" name="price" step="10" min="10" class="form-input" placeholder="2500" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-image">Image File *</label>
+            <select id="add-image" name="image" class="form-select" required>
+              {% for img in available_images %}
+                <option value="{{ img }}">{{ img }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="add-stock">Stock Availability *</label>
+            <select id="add-stock" name="stock_status" class="form-select" required>
+              <option value="In Stock" selected>In Stock (Available Fresh)</option>
+              <option value="Out of Stock">Out of Stock (Temporarily Unavailable)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="display: flex; align-items: center; margin-top: 1.5rem;">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="featured" style="width: 18px; height: 18px;">
+              <span style="font-weight: 600; color: var(--gold-light);">Highlight as Featured Dish on Homepage</span>
+            </label>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="add-description">Culinary Description</label>
+            <textarea id="add-description" name="description" rows="3" class="form-textarea" placeholder="Describe the spices, meat cut, cooking method, and garnishing..."></textarea>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" style="padding: 0.85rem 2rem;">
+            + Save Dish to Royal Menu
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="edit-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: var(--bg-card); border: 2px solid var(--gold-border); border-radius: var(--radius-md); padding: 2.5rem; max-width: 650px; width: 100%; box-shadow: var(--shadow-card); position: relative; max-height: 90vh; overflow-y: auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+      <h3 style="font-size: 1.3rem; color: var(--gold-light);">Edit Dish Details</h3>
+      <button onclick="closeEditModal()" style="background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">✕</button>
+    </div>
+
+    <form id="edit-form" method="POST">
+      <div class="form-grid">
+        
+        <div class="form-group">
+          <label class="form-label">Dish Name</label>
+          <input type="text" id="edit-name" name="name" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="edit-category" name="category" class="form-select" required>
+            <option value="Karahi">Karahi</option>
+            <option value="BBQ">BBQ</option>
+            <option value="Handi">Handi</option>
+            <option value="Biryani">Biryani</option>
+            <option value="Pakistani">Pakistani</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Desserts">Desserts</option>
+            <option value="Drinks">Drinks</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Price (PKR)</label>
+          <input type="number" id="edit-price" name="price" step="10" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Image File</label>
+          <select id="edit-image" name="image" class="form-select" required>
+            {% for img in available_images %}
+              <option value="{{ img }}">{{ img }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Stock Status</label>
+          <select id="edit-stock" name="stock_status" class="form-select" required>
+            <option value="In Stock">In Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; margin-top: 1.5rem;">
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="edit-featured" name="featured" style="width: 18px; height: 18px;">
+            <span style="font-weight: 600; color: var(--gold-light);">Featured on Homepage</span>
+          </label>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Description</label>
+          <textarea id="edit-description" name="description" rows="3" class="form-textarea"></textarea>
+        </div>
+
+      </div>
+
+      <div style="margin-top: 1.75rem; display: flex; gap: 1rem; justify-content: flex-end;">
+        <button type="button" onclick="closeEditModal()" class="btn btn-outline btn-sm">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+function openEditModal(id, name, category, price, image, stock, featured, description) {
+  const form = document.getElementById('edit-form');
+  form.action = '/admin/products/' + id + '/edit';
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-category').value = category;
+  document.getElementById('edit-price').value = price;
+  document.getElementById('edit-image').value = image;
+  document.getElementById('edit-stock').value = stock;
+  document.getElementById('edit-featured').checked = featured;
+  document.getElementById('edit-description').value = description;
+  
+  const modal = document.getElementById('edit-modal');
+  modal.style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+}
+</script>
+
+{% endblock %}

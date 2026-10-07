@@ -1,0 +1,6 @@
+{
+  "name": "Zaiqa Royale - A Royal Taste of Lahore",
+  "description": "Luxury Pakistani restaurant website for Zaiqa Royale in Lahore featuring a rich dining menu, real-time cart, checkout, table reservations, and comprehensive admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

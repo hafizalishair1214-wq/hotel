@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}The Royal Dining Menu | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+
+<!-- MENU HEADER -->
+<section style="background: linear-gradient(180deg, rgba(10, 11, 13, 0.8) 0%, rgba(10, 11, 13, 0.98) 100%), url('{{ url_for('static', filename='images/hero.jpg') }}') center/cover; padding: 4.5rem 0 3rem; text-align: center; border-bottom: 1px solid var(--border-subtle);">
+  <div class="container">
+    <span class="section-tag">Centuries of Royal Flavors</span>
+    <h1 class="section-title">The Royal Menu</h1>
+    <p class="section-subtitle" style="margin-bottom: 2rem;">
+      Every dish is prepared fresh upon order by our master khansamas using pure desi ghee, premium grass-fed meat, and aromatic whole spices.
+    </p>
+
+    <!-- Real-Time Search Bar -->
+    <div style="max-width: 520px; margin: 0 auto 1.5rem; position: relative;">
+      <div style="position: relative; display: flex; align-items: center;">
+        <span style="position: absolute; left: 18px; color: var(--gold-primary); font-size: 1.1rem; pointer-events: none;">🔍</span>
+        <input type="text" 
+               id="menu-live-search" 
+               name="q" 
+               value="{{ search_query }}" 
+               placeholder="Search by dish name or description in real-time..." 
+               class="form-input" 
+               autocomplete="off"
+               style="border-radius: 50px; padding-left: 48px; padding-right: 44px; height: 50px; font-size: 0.95rem; background: rgba(21, 23, 29, 0.95); border: 1px solid var(--gold-border); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <button type="button" 
+                id="menu-search-clear" 
+                title="Clear search" 
+                style="display: {% if search_query %}flex{% else %}none{% endif %}; position: absolute; right: 14px; width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(255,255,255,0.15); color: var(--text-cream); cursor: pointer; align-items: center; justify-content: center; font-size: 0.8rem; transition: all 0.2s ease;">
+          ✕
+        </button>
+      </div>
+      <div id="menu-search-feedback" style="display: none; text-align: center; color: var(--gold-light); font-size: 0.82rem; margin-top: 8px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU ITEMS & CATEGORY FILTER -->
+<section class="section">
+  <div class="container">
+
+    <!-- Category Filter Tabs -->
+    <div class="filter-bar">
+      {% for cat in categories %}
+        <a href="{{ url_for('menu', category=cat, q=search_query) }}" 
+           class="filter-btn {% if active_category == cat %}active{% endif %}">
+          {{ cat }}
+        </a>
+      {% endfor %}
+    </div>
+
+    <!-- Product Grid from Database -->
+    {% if products %}
+      <div class="dish-grid">
+        {% for product in products %}
+          <article class="dish-card" id="dish-card-{{ product.id }}">
+            <div class="dish-image-wrap">
+              <img src="{{ url_for('static', filename='images/' + product.image) }}" 
+                   alt="{{ product.name }}" 
+                   class="dish-image"
+                   loading="lazy">
+              <span class="dish-category-badge">{{ product.category }}</span>
+              {% if product.featured %}
+                <span class="dish-featured-badge">Featured</span>
+              {% endif %}
+            </div>
+
+            <div class="dish-body">
+              <h3 class="dish-title">{{ product.name }}</h3>
+              <p class="dish-desc">{{ product.description }}</p>
+
+              <div class="dish-footer">
+                <div>
+                  <div class="dish-price">
+                    <small>{{ currency }}</small> {{ product.price|int }}
+                  </div>
+                  <div style="font-size: 0.75rem; margin-top: 2px;">
+                    {% if product.availability and product.stock_status == 'In Stock' %}
+                      <span style="color: #4ade80;">● Available Fresh</span>
+                    {% else %}
+                      <span style="color: #f87171;">● Currently Sold Out</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  {% if product.availability and product.stock_status == 'In Stock' %}
+                    <div style="display: inline-flex; align-items: center; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); height: 36px; background: var(--bg-surface);">
+                      <input type="number" 
+                             id="qty-{{ product.id }}" 
+                             value="1" 
+                             min="1" 
+                             max="20" 
+                             style="width: 44px; text-align: center; background: transparent; border: none; color: var(--text-cream); font-weight: 600; font-size: 0.88rem;"
+                             aria-label="Quantity for {{ product.name }}">
+                    </div>
+
+                    <button class="btn btn-primary btn-sm btn-add-cart" 
+                            data-product-id="{{ product.id }}"
+                            aria-label="Add {{ product.name }} to cart">
+                      Add to Cart
+                    </button>
+                  {% else %}
+                    <button class="btn btn-outline btn-sm" disabled style="opacity: 0.5; cursor: not-allowed;">
+                      Unavailable
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <!-- Real-Time Search Empty State -->
+      <div id="menu-no-results" style="display: none; text-align: center; padding: 4rem 1.5rem; background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); max-width: 580px; margin: 2rem auto;">
+        <p style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</p>
+        <h3 style="margin-bottom: 0.5rem; color: var(--gold-light);">No Royal Dishes Found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;" id="menu-no-results-text">
+          No dishes match your search keywords.
+        </p>
+        <button type="button" id="menu-reset-search-btn" class="btn btn-primary btn-sm">
+          Clear Search & View All Dishes
+        </button>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 4rem 1rem; background: var(--bg-surface); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); max-width: 600px; margin: 0 auto;">
+        <p style="font-size: 2rem; margin-bottom: 0.5rem;">🏺</p>
+        <h3 style="margin-bottom: 0.5rem; color: var(--gold-light);">No Dishes Found</h3>
+        <p style="margin-bottom: 1.5rem;">No menu items matched your current filter criteria.</p>
+        <a href="{{ url_for('menu') }}" class="btn btn-primary btn-sm">Reset All Filters</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- PROMOTIONAL BANQUET STRIP -->
+<section style="background: var(--bg-elevated); padding: 3rem 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+  <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+    <div>
+      <h3 style="font-size: 1.35rem; margin-bottom: 0.25rem;">Planning a Royal Wedding, Nikkah or Corporate Gathering?</h3>
+      <p style="font-size: 0.9rem; margin-bottom: 0;">Our executive catering khansamas offer customized banquet menus with live tandoor service.</p>
+    </div>
+    <div style="display: flex; gap: 1rem;">
+      <a href="{{ url_for('reservation') }}" class="btn btn-primary">Book Event Hall</a>
+      <a href="https://wa.me/{{ restaurant_whatsapp }}?text=Hello%20Zaiqa%20Royale!%20We%20would%20like%20to%20discuss%20catering%20for%20an%20event." target="_blank" class="btn btn-whatsapp">
+        WhatsApp Concierge
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

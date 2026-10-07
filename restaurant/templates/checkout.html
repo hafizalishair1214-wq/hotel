@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | Zaiqa Royale Lahore{% endblock %}
+
+{% block content %}
+
+<div class="container section">
+  <div style="text-align: center; margin-bottom: 2.5rem;">
+    <span class="section-tag">Final Step</span>
+    <h1 class="section-title">Royal Order Checkout</h1>
+    <p class="section-subtitle">
+      Please provide your delivery destination in Lahore. Our royal kitchen will commence fresh preparation immediately.
+    </p>
+  </div>
+
+  <div class="cart-layout">
+    
+    <!-- Customer Details Form -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2.25rem;">
+      
+      {% if current_user.is_authenticated and not current_user.is_admin() %}
+        <!-- Logged In Customer Royalty Banner -->
+        <div style="background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(26,29,35,0.8) 100%); border: 1px solid var(--gold-primary); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 2rem;">👑</span>
+            <div>
+              <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold-primary); font-weight: 700;">Shahi Club Member</div>
+              <h4 style="font-size: 1.1rem; color: var(--text-cream); margin-top: 1px;">{{ current_user.name }} ({{ current_user.membership_tier }} Tier)</h4>
+              <p style="font-size: 0.85rem; color: var(--gold-light); margin: 0;">
+                Treasury Balance: <strong>{{ current_user.loyalty_points }} Points</strong> (Value: PKR {{ current_user.loyalty_points }})
+              </p>
+            </div>
+          </div>
+          <div style="font-size: 0.82rem; background: var(--bg-surface); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); color: #4ade80;">
+            🌟 This order earns: <strong>+{{ ((subtotal) / 100)|int }} Royal Points</strong>
+          </div>
+        </div>
+      {% else %}
+        <!-- Guest Incentive Banner -->
+        <div style="background: rgba(212, 175, 55, 0.08); border: 1px dashed var(--gold-border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.5rem;">🎁</span>
+            <div style="font-size: 0.88rem; color: var(--text-cream);">
+              <strong>Earn Royal Rewards:</strong> Sign in or join free to earn <strong>+{{ ((subtotal) / 100)|int }} points</strong> on this order & get 100 bonus points!
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('customer_login', next=url_for('checkout')) }}" class="btn btn-outline btn-sm" style="font-size: 0.78rem;">Sign In</a>
+            <a href="{{ url_for('customer_register', next=url_for('checkout')) }}" class="btn btn-primary btn-sm" style="font-size: 0.78rem;">Join Free (+100 Pts)</a>
+          </div>
+        </div>
+      {% endif %}
+
+      <h3 style="font-size: 1.35rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; color: var(--gold-light);">
+        1. Delivery Destination & Contact
+      </h3>
+
+      <form action="{{ url_for('checkout') }}" method="POST" id="checkout-form">
+        <div class="form-grid">
+          
+          <div class="form-group">
+            <label class="form-label" for="customer_name">Full Name *</label>
+            <input type="text" id="customer_name" name="customer_name" class="form-input" placeholder="e.g. Tariq Mehmood" required 
+                   value="{% if current_user.is_authenticated and not current_user.is_admin() %}{{ current_user.name }}{% endif %}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone / Mobile Number *</label>
+            <input type="tel" id="phone" name="phone" class="form-input" placeholder="e.g. 0300-1234567" required 
+                   value="{% if current_user.is_authenticated and not current_user.is_admin() %}{{ current_user.phone or '' }}{% endif %}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-input" placeholder="e.g. tariq@gmail.com" 
+                   value="{% if current_user.is_authenticated and not current_user.is_admin() %}{{ current_user.email }}{% endif %}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="city">City *</label>
+            <select id="city" name="city" class="form-select" required>
+              <option value="Lahore" selected>Lahore (Main Metro)</option>
+              <option value="Lahore - Gulberg">Lahore — Gulberg I, II, III</option>
+              <option value="Lahore - DHA">Lahore — DHA Phases 1–8</option>
+              <option value="Lahore - Cantt">Lahore — Cantonment</option>
+              <option value="Lahore - Model Town">Lahore — Model Town</option>
+              <option value="Lahore - Johar Town">Lahore — Johar Town & Faisal Town</option>
+              <option value="Lahore - Bahria Town">Lahore — Bahria Town</option>
+              <option value="Lahore - Old City">Lahore — Walled City / Fort Road</option>
+              <option value="Lahore - Mall Road">Lahore — Mall Road / Upper Mall</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="address">Complete Street Address, House & Floor *</label>
+            <textarea id="address" name="address" rows="3" class="form-textarea" placeholder="e.g. House 42, Street 8, Block G, Gulberg III, Lahore" required></textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label" for="order_notes">Special Kitchen Instructions / Landmarks (Optional)</label>
+            <input type="text" id="order_notes" name="order_notes" class="form-input" placeholder="e.g. Extra mint raita, mild spice for children, near Jalal Sons landmark">
+          </div>
+
+        </div>
+
+        {% if current_user.is_authenticated and not current_user.is_admin() and current_user.loyalty_points > 0 %}
+          <!-- Loyalty Points Redemption Section -->
+          <h3 style="font-size: 1.35rem; margin: 2rem 0 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; color: var(--gold-light);">
+            2. Redeem Royal Points
+          </h3>
+
+          <div style="background: var(--bg-surface); border: 1px solid var(--gold-border); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1.5rem;">
+            {% set max_points = [current_user.loyalty_points, subtotal|int]|min %}
+            <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+              <input type="checkbox" id="redeem_points_toggle" name="redeem_loyalty_points" style="width: 20px; height: 20px; margin-top: 3px;" onchange="togglePointsRedemption()">
+              <div>
+                <span style="font-size: 0.95rem; font-weight: 700; color: var(--gold-light);">
+                  Redeem {{ max_points }} Royal Points (Save PKR {{ max_points }})
+                </span>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 2px 0 0;">
+                  Apply your points directly to reduce the feast total. Remaining treasury balance: {{ current_user.loyalty_points - max_points }} pts.
+                </p>
+              </div>
+            </label>
+            <input type="hidden" id="max_redeem_points" value="{{ max_points }}">
+          </div>
+        {% else %}
+          <input type="hidden" id="max_redeem_points" value="0">
+        {% endif %}
+
+        <h3 style="font-size: 1.35rem; margin: 2rem 0 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; color: var(--gold-light);">
+          {% if current_user.is_authenticated and not current_user.is_admin() and current_user.loyalty_points > 0 %}3{% else %}2{% endif %}. Payment Method
+        </h3>
+
+        <div class="payment-options">
+          
+          <!-- Cash on Delivery -->
+          <label class="payment-card-label">
+            <input type="radio" name="payment_method" value="Cash on Delivery" checked onchange="togglePaymentInfo('cod')">
+            <div class="payment-title">💵 Cash on Delivery</div>
+            <div class="payment-desc">Pay cash to our rider upon doorstep arrival</div>
+          </label>
+
+          <!-- Direct Bank Transfer -->
+          <label class="payment-card-label">
+            <input type="radio" name="payment_method" value="Bank Transfer" onchange="togglePaymentInfo('bank')">
+            <div class="payment-title">🏦 Bank Transfer</div>
+            <div class="payment-desc">Meezan Bank / HBL instant transfer</div>
+          </label>
+
+          <!-- Online Payment Placeholder (As instructed in Section 8) -->
+          <label class="payment-card-label">
+            <input type="radio" name="payment_method" value="Online Payment" onchange="togglePaymentInfo('online')">
+            <div class="payment-title">💳 Online Card</div>
+            <div class="payment-desc">Visa / Mastercard / PayPak Gateway</div>
+          </label>
+
+        </div>
+
+        <!-- Bank Details Card (Shown if Bank Transfer is chosen) -->
+        <div id="bank-info-box" style="display: none; margin-top: 1.25rem; padding: 1.25rem; background: var(--bg-surface); border: 1px solid var(--gold-border); border-radius: var(--radius-sm); font-size: 0.88rem;">
+          <p style="color: var(--gold-light); font-weight: 600; margin-bottom: 0.5rem;">Official Restaurant Corporate Account:</p>
+          <p>Bank: <strong>Meezan Bank Limited (Fort Road Branch)</strong></p>
+          <p>Account Title: <strong>ZAIQA ROYALE PRIVATE LIMITED</strong></p>
+          <p>Account Number: <strong>0214 0104 9876 5432</strong></p>
+          <p>IBAN: <strong>PK44MEZN0002140104987654</strong></p>
+          <p style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.5rem;">After placing order, please share payment screenshot via WhatsApp: {{ restaurant_whatsapp }}</p>
+        </div>
+
+        <!-- Online Payment Placeholder (Shown if Online Payment is chosen) -->
+        <div id="online-info-box" style="display: none; margin-top: 1.25rem; padding: 1.25rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-sm); font-size: 0.88rem;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; color: #93c5fd; font-weight: 600;">
+            <span>ℹ️</span> <span>Online Payment Gateway Placeholder</span>
+          </div>
+          <p style="color: #cbd5e1; font-size: 0.82rem; margin-bottom: 0.75rem;">
+            This is a clearly marked payment integration placeholder. In live production, this connects to Bank Alfalah, Habib Bank, or Stripe. For this order, clicking "Place Order" will safely record your order into the database.
+          </p>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px;">
+            <input type="text" placeholder="Card Number (Demo)" class="form-input" style="height: 38px; font-size: 0.85rem;" disabled value="•••• •••• •••• 4242">
+            <input type="text" placeholder="MM/YY" class="form-input" style="height: 38px; font-size: 0.85rem;" disabled value="12/28">
+            <input type="text" placeholder="CVC" class="form-input" style="height: 38px; font-size: 0.85rem;" disabled value="•••">
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem; letter-spacing: 0.1em;">
+            CONFIRM & PLACE ORDER →
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Order Items Recap -->
+    <div class="order-summary-box">
+      <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+        Your Feast Items
+      </h3>
+
+      <div style="max-height: 280px; overflow-y: auto; margin-bottom: 1.25rem; padding-right: 6px;">
+        {% for it in items %}
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.88rem;">
+            <div>
+              <div style="font-weight: 600; color: var(--text-cream);">{{ it['quantity'] }}x {{ it['product'].name }}</div>
+              <div style="font-size: 0.75rem; color: var(--gold-primary);">{{ it['product'].category }}</div>
+            </div>
+            <div style="font-weight: 600; color: var(--gold-light); font-variant-numeric: tabular-nums;">
+              {{ currency }} {{ it['total']|int }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span style="font-variant-numeric: tabular-nums;">{{ currency }} {{ subtotal|int }}</span>
+      </div>
+
+      <div class="summary-row" id="discount-row" style="display: none; color: #4ade80;">
+        <span>Royal Points Discount:</span>
+        <span id="summary-discount" style="font-variant-numeric: tabular-nums;">-{{ currency }} 0</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Delivery Fee (Lahore):</span>
+        <span style="font-variant-numeric: tabular-nums;">{{ currency }} {{ delivery_fee|int }}</span>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total Payable:</span>
+        <span id="summary-total-display" style="font-variant-numeric: tabular-nums;">{{ currency }} {{ total|int }}</span>
+      </div>
+
+      {% if current_user.is_authenticated and not current_user.is_admin() %}
+        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(212,175,55,0.08); border-radius: var(--radius-sm); border: 1px solid var(--gold-border); font-size: 0.82rem; text-align: center; color: var(--gold-light);">
+          👑 You will earn <strong>+{{ ((subtotal) / 100)|int }} Royal Points</strong> on this order!
+        </div>
+      {% endif %}
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="{{ url_for('cart') }}" class="btn btn-outline btn-sm" style="width: 100%;">
+          ← Modify Cart Items
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const baseSubtotal = {{ subtotal }};
+const deliveryFee = {{ delivery_fee }};
+
+function togglePointsRedemption() {
+  const checkbox = document.getElementById('redeem_points_toggle');
+  const maxPoints = parseInt(document.getElementById('max_redeem_points').value) || 0;
+  const discountRow = document.getElementById('discount-row');
+  const discountSpan = document.getElementById('summary-discount');
+  const totalDisplay = document.getElementById('summary-total-display');
+
+  if (checkbox && checkbox.checked && maxPoints > 0) {
+    const discount = maxPoints;
+    const newTotal = Math.max(0, baseSubtotal - discount) + deliveryFee;
+    if (discountRow) discountRow.style.display = 'flex';
+    if (discountSpan) discountSpan.textContent = '-{{ currency }} ' + discount.toLocaleString();
+    if (totalDisplay) totalDisplay.textContent = '{{ currency }} ' + Math.round(newTotal).toLocaleString();
+  } else {
+    const originalTotal = baseSubtotal + deliveryFee;
+    if (discountRow) discountRow.style.display = 'none';
+    if (totalDisplay) totalDisplay.textContent = '{{ currency }} ' + Math.round(originalTotal).toLocaleString();
+  }
+}
+
+function togglePaymentInfo(method) {
+  const bankBox = document.getElementById('bank-info-box');
+  const onlineBox = document.getElementById('online-info-box');
+  if (bankBox) bankBox.style.display = method === 'bank' ? 'block' : 'none';
+  if (onlineBox) onlineBox.style.display = method === 'online' ? 'block' : 'none';
+}
+</script>
+
+{% endblock %}

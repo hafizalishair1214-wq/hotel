@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Zaiqa Royale — A Royal Taste of Lahore | Luxury Pakistani Dining{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span>◆</span>
+        <span>Heritage Pakistani Gastronomy</span>
+        <span>◆</span>
+      </div>
+      <h1 class="hero-title">{{ restaurant_name }}</h1>
+      <p class="hero-tagline">{{ restaurant_tagline }}</p>
+      <p class="hero-description">
+        Step into an atmosphere of regal Mughal grandeur where aged spices, pure churned desi ghee, and smoking clay tandoors celebrate the living culinary heritage of Old Lahore.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('menu') }}" class="btn btn-primary">
+          Explore Menu
+        </a>
+        <a href="{{ url_for('menu') }}" class="btn btn-red">
+          Order Now
+        </a>
+        <a href="{{ url_for('reservation') }}" class="btn btn-outline">
+          Book a Table
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED DISHES SECTION (6 DISHES) -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-tag">Chef's Royal Signatures</span>
+      <h2 class="section-title">Culinary Masterpieces of Lahore</h2>
+      <p class="section-subtitle">
+        Each creation is slowly simmered, flame-kissed, and crafted using generations-old secret recipes handed down by royal shahi khansamas.
+      </p>
+    </div>
+
+    <div class="dish-grid">
+      {% for dish in featured_dishes %}
+        <article class="dish-card">
+          <div class="dish-image-wrap">
+            <img src="{{ url_for('static', filename='images/' + dish.image) }}" 
+                 alt="{{ dish.name }}" 
+                 class="dish-image"
+                 loading="lazy">
+            <span class="dish-category-badge">{{ dish.category }}</span>
+            {% if dish.featured %}
+              <span class="dish-featured-badge">Royal Special</span>
+            {% endif %}
+          </div>
+          <div class="dish-body">
+            <h3 class="dish-title">{{ dish.name }}</h3>
+            <p class="dish-desc">{{ dish.description }}</p>
+            <div class="dish-footer">
+              <div class="dish-price">
+                <small>{{ currency }}</small> {{ dish.price|int }}
+              </div>
+              <button class="btn btn-primary btn-sm btn-add-cart" 
+                      data-product-id="{{ dish.id }}"
+                      aria-label="Add {{ dish.name }} to cart">
+                <span>Add to Cart</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    <div class="text-center" style="margin-top: 3.5rem;">
+      <a href="{{ url_for('menu') }}" class="btn btn-outline">
+        View Complete Royal Menu (18+ Dishes) →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CUISINE CATEGORIES SECTION -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-tag">Centuries of Flavors</span>
+      <h2 class="section-title">Explore by Culinary Tradition</h2>
+      <p class="section-subtitle">
+        From sizzling iron woks and slow-cooked earthen pots to skewers smoking over tamarind wood coals.
+      </p>
+    </div>
+
+    <div class="category-grid">
+      {% for cat in categories %}
+        <a href="{{ url_for('menu', category=cat.name) }}" class="category-card">
+          <div class="category-icon-box">
+            {% if cat.name == 'Karahi' %}🍲
+            {% elif cat.name == 'BBQ' %}🔥
+            {% elif cat.name == 'Biryani' %}🍚
+            {% elif cat.name == 'Handi' %}🏺
+            {% elif cat.name == 'Pakistani' %}🥘
+            {% elif cat.name == 'Chinese' %}🥢
+            {% elif cat.name == 'Desserts' %}🍮
+            {% else %}🍹{% endif %}
+          </div>
+          <h3 class="category-name">{{ cat.name }}</h3>
+          <p class="category-desc">{{ cat.desc }}</p>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT THE CONCEPT SECTION -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="about-split">
+      
+      <div class="about-image-stack">
+        <img src="{{ url_for('static', filename='images/restaurant-interior.jpg') }}" 
+             alt="Zaiqa Royale Interior Ambience in Lahore" 
+             class="about-main-image">
+        <div class="about-badge">
+          <div class="about-badge-num">100%</div>
+          <div class="about-badge-text">Desi Ghee & Fresh Meat</div>
+        </div>
+      </div>
+
+      <div class="about-text">
+        <span class="section-tag">The Zaiqa Royale Philosophy</span>
+        <h2 class="section-title">Where Lahore’s Rich Heritage Meets Culinary Royalty</h2>
+        <p>
+          Founded on the historic soil of Lahore, <strong>Zaiqa Royale</strong> revives the majestic hospitality of the Mughal emperors and the bustling food streets of the Walled City.
+        </p>
+        <p>
+          We reject shortcuts and modern commercial substitutes. Our mutton and beef are sourced fresh daily, our spices are hand-ground in stone mortared pestles, and every karahi is brought to bubbling perfection in seasoned cast-iron woks over roaring flames.
+        </p>
+        <p>
+          Whether dining beneath our intricately carved brick arches or celebrating at home with loved ones through our bespoke doorstep delivery, Zaiqa Royale delivers an unmatched banquet fit for royalty.
+        </p>
+
+        <div class="about-features">
+          <div class="about-feature-item">
+            <h4 class="about-feature-title">Heritage Clay Tandoors</h4>
+            <p class="about-feature-desc">Naans and rotis baked hot against flaming clay walls with churned butter.</p>
+          </div>
+          <div class="about-feature-item">
+            <h4 class="about-feature-title">Dum Pukht Sealing</h4>
+            <p class="about-feature-desc">Dough-sealed copper handis trapping natural aromas and saffron essence.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 2.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="{{ url_for('reservation') }}" class="btn btn-primary">Reserve a Banquet Table</a>
+          <a href="{{ url_for('contact') }}" class="btn btn-outline">Find Our Location</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- RESTAURANT GALLERY SECTION (6-9 IMAGES) -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-tag">Visual Feast</span>
+      <h2 class="section-title">Ambience & Food Gallery</h2>
+      <p class="section-subtitle">
+        A glimpse into the regal architecture, courtyard terraces, and succulent delicacies that await your arrival.
+      </p>
+    </div>
+
+    <div class="gallery-grid">
+      {% for item in gallery %}
+        <div class="gallery-item">
+          <img src="{{ url_for('static', filename='images/' + item.image) }}" 
+               alt="{{ item.title }}" 
+               loading="lazy">
+          <div class="gallery-overlay">
+            <p class="gallery-title">{{ item.title }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- GUEST REVIEWS SECTION (DEMO CONTENT CLEARLY MARKED) -->
+<section class="section">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-tag">Royal Acclaim</span>
+      <h2 class="section-title">Words from Our Patrons</h2>
+      <p class="section-subtitle">
+        Reflections from guests who have experienced the warmth, aromas, and splendor of Zaiqa Royale.
+        <br><small style="color: var(--text-dim); font-size: 0.75rem;">(Demonstration reviews showcasing guest experience)</small>
+      </p>
+    </div>
+
+    <div class="reviews-grid">
+      {% for rev in reviews %}
+        <div class="review-card">
+          <div class="review-stars">★★★★★</div>
+          <p class="review-comment">"{{ rev.comment }}"</p>
+          <div class="review-author">
+            <div>
+              <div class="review-name">{{ rev.name }}</div>
+              <div class="review-role">{{ rev.role }} · {{ rev.date }}</div>
+            </div>
+            <span class="review-demo-badge">{{ rev.badge }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION, HOURS & CONTACT SECTION -->
+<section class="section section-alt" id="location">
+  <div class="container">
+    <div class="text-center">
+      <span class="section-tag">Visit the Palace</span>
+      <h2 class="section-title">Location & Royal Hours</h2>
+      <p class="section-subtitle">
+        Located in the cultural heartbeat of Lahore with convenient access, valet parking, and private event banquet halls.
+      </p>
+    </div>
+
+    <div class="info-strip">
+      <div class="info-card">
+        <h4>📞 Phone Inquiries</h4>
+        <p><a href="tel:{{ restaurant_phone }}" style="color: var(--gold-light);">{{ restaurant_phone }}</a></p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">Table Reservations & Takeout</p>
+      </div>
+
+      <div class="info-card">
+        <h4>💬 WhatsApp Orders</h4>
+        <p><a href="https://wa.me/{{ restaurant_whatsapp }}" target="_blank" style="color: #25d366; font-weight: 600;">{{ restaurant_whatsapp }}</a></p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">Instant Dispatch & Tracking</p>
+      </div>
+
+      <div class="info-card">
+        <h4>🕒 Opening Hours</h4>
+        <p style="color: var(--text-cream); font-weight: 500;">{{ restaurant_hours }}</p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">Open 7 Days a Week</p>
+      </div>
+
+      <div class="info-card">
+        <h4>📍 Heritage Address</h4>
+        <p style="color: var(--text-cream);">{{ restaurant_address }}</p>
+        <p style="font-size: 0.8rem; margin-top: 4px;">{{ restaurant_map_location }}</p>
+      </div>
+    </div>
+
+    <!-- Embedded Map of Lahore -->
+    <div class="map-wrapper">
+      <iframe 
+        title="Zaiqa Royale Lahore Map"
+        src="https://maps.google.com/maps?q={{ restaurant_map_location|urlencode }}&t=&z=13&ie=UTF8&iwloc=&output=embed"
+        loading="lazy"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
